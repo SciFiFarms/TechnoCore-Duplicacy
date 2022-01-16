@@ -1,12 +1,12 @@
 version: "3.5"
 networks:
-  example_service-prometheus:
+  duplicacy_cli-prometheus:
 
 services:
   prometheus:
     networks:
-      - example_service-prometheus
+      - duplicacy_cli-prometheus
 
-  example_service:
+  duplicacy_cli:
     networks:
-      - example_service-prometheus
+      - duplicacy_cli-prometheus

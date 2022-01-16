@@ -1,10 +1,10 @@
-#FROM [ORG/IMAGE:TAG]
+FROM azinchen/duplicacy:0.9.5
 # TO add bash to a minimal image:
 #FROM vault:1.1.1 as base
 #FROM alpine:3.10
 #COPY --from=base / /
 
-#RUN apk add --no-cache bash
+RUN apk add --no-cache curl
 
 ## Add dogfish
 ## This should be set to where the volume mounts to.
@@ -18,10 +18,11 @@
 
 #
 ### Set up the CMD as well as the pre and post hooks.
-#COPY go-init /bin/go-init
-#COPY entrypoint.sh /usr/bin/entrypoint.sh
-#COPY exitpoint.sh /usr/bin/exitpoint.sh
+COPY go-init /bin/go-init
+COPY entrypoint.sh /usr/bin/entrypoint.sh
+COPY exitpoint.sh /usr/bin/exitpoint.sh
+COPY ping_url.sh /usr/bin/ping_url.sh
 #
-#ENTRYPOINT ["go-init"]
-#CMD ["-main", "/usr/bin/entrypoint.sh", "-post", "/usr/bin/exitpoint.sh"]
+ENTRYPOINT ["go-init"]
+CMD ["-main", "/usr/bin/entrypoint.sh /init", "-post", "/usr/bin/exitpoint.sh"]
 #

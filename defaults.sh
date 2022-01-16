@@ -25,12 +25,14 @@ set_service_flag $service_name
 #    export SERVICE_CONFIG_prometheus_exporters=${TECHNOCORE_SERVICES}/prometheus/exporters.yml
 #fi
 
-#if [[ "$LIVE_MOUNT_ESPHOME_ENABLED" != "" ]]; then
+if [[ "$DUPLICACY_HEALTH_CHECK_URL" != "" ]]; then
+    export DUPLICACY_POST_BACKUP_SCRIPT=POST_BACKUP_SCRIPT=/usr/bin/ping_url.sh
 #    # START HERE: I think these might need
 #    export ESPHOME_VOLUME=${TECHNOCORE_ROOT}/hals/
-#else
+else
+    export DUPLICACY_POST_BACKUP_SCRIPT=POST_BACKUP_SCRIPT=
 #    export ESPHOME_VOLUME=esphome
-#fi
+fi
 
 #generate_mount dev migrations /usr/share/dogfish/shell-migrations
 
@@ -39,4 +41,5 @@ set_service_flag $service_name
 #set_optional_service mqtt
 #set_optional_service pgadmin
 #set_optional_service syncthing
-set_optional_service prometheus
+#set_optional_service prometheus
+set_optional_service smtp_relay

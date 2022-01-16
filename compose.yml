@@ -1,51 +1,48 @@
 version: "3.5"
-# Use replace_example_service.sh to replace all instances of example_service
-# with your_actual_service_name and EXAMPLE_SERVICE with YOUR_ACTUAL_SERVICE_NAME. 
 
 networks:
-  example_service:
-  example_service-private:
+  duplicacy_cli:
 
 volumes:
-  example_service:
-  example_service-db:
+  duplicacy_cli:
 
 secrets:
-  example_service_admin_password:
-    name: ${STACK_NAME:-technocore}_example_service_admin_password
+  duplicacy_cli_repo_password:
+    name: ${STACK_NAME:-technocore}_duplicacy_cli_repo_password
     external: true
-  example_service_example_service_db_password:
-    name: ${STACK_NAME:-technocore}_example_service_example_service_db_password
+  duplicacy_cli_storage_username:
+    name: ${STACK_NAME:-technocore}_duplicacy_cli_storage_username
     external: true
-  example_service_db_example_service_password:
-    name: ${STACK_NAME:-technocore}_example_service_db_example_service_password
+  duplicacy_cli_storage_password:
+    name: ${STACK_NAME:-technocore}_duplicacy_cli_storage_password
     external: true
 
 services:
   ## Uncomment this if Traefik will be used for routing traffick to this service.
   #ingress:
   #  networks:
-  #    - example_service
+  #    - duplicacy_cli
 
-  example_service:
+  duplicacy_cli:
     deploy:
       labels:
-      #  - traefik.frontend.rule=$EXAMPLE_SERVICE_ROUTING_LABEL
-      #  - traefik.frontend.priority=$EXAMPLE_SERVICE_ROUTING_LABEL_PRIORITY
+      #  - traefik.frontend.rule=$DUPLICACY_CLI_ROUTING_LABEL
+      #  - traefik.frontend.priority=$DUPLICACY_CLI_ROUTING_LABEL_PRIORITY
       #  # You'll need to set application's port here.
       #  - traefik.port=SET_ME_PLEASE
       #  - ${TRAEFIK_BASIC_AUTH}
       #  - traefik.enable=true
       #  - traefik.tags=ingress 
-      #  - traefik.docker.network=${STACK_NAME:-technocore}_example_service
+      #  - traefik.docker.network=${STACK_NAME:-technocore}_duplicacy_cli
       #  # Traefik service that listens to HTTP
       #  - traefik.redirectorservice.frontend.entryPoints=http
       #  - traefik.redirectorservice.frontend.redirect.entryPoint=https
       #  # Traefik service that listens to HTTPS
       #  - traefik.webservice.frontend.entryPoints=https
         - com.ouroboros.enable=true
-        #- user-provided-secret-dns_token=example_service dns_token
-        #- user-provided-secret-dns_user=example_service dns_user
+        - user-provided-secret-repo_password=duplicacy_cli repo_password
+        - user-provided-secret-storage_username=duplicacy_cli storage_username
+        - user-provided-secret-storage_password=duplicacy_cli storage_password
       mode: global
       restart_policy:
         condition: any
@@ -53,58 +50,82 @@ services:
         constraints:
           - node.role == manager
       # Big services will need this modified or removed.
-      resources:
-        limits:
-          memory: 128M
-        reservations:
-          memory: 64M
+      #resources:
+      #  limits:
+      #    memory: 128M
+      #  reservations:
+      #    memory: 64M
     environment:
-      # Sometimes you have to pass in ${DOMAIN} to enable the correct link paths to be generated.
-      #- MQTT_USER=${example_service}
-      - ADMIN_USER=${ADMIN_USER}
-      - ADMIN_PASSWORD={{"{{DOCKER-SECRET:admin_password}}"}}
-    image: ${image_provider:-scififarms}/technocore-example_service:${TAG:-latest}
+      # Run within 45 minutes.
+      - JOB_RANDOM_DELAY=${DUPLICACY_JOB_RANDOM_DELAY:-2700}
+      #- RUN_JOB_IMMEDIATELY=yes
+      - STORAGE_URL=${DUPLICACY_STORAGE_URL:-PLEASE_ENTER_A_DUPLICACY_STORAGE_URL}
+      - "FILTER_PATTERNS=-*/.snapshots/;
+        -root/var/lib/docker/;
+        -root/proc/*;
+        -root/dev/*;
+        -root/run/*;
+        -root/sys/*;
+        -root/tmp/*;
+        -root/home/;
+        -root/Temp/;
+        -root/Videos/;
+        -etc/systemd/system.control/;
+        -home/*/.config/libreoffice/*/user/uno_packages/cache;
+        -home/*/.cache/chromium;
+        -home/*/.local/share/Trash/*;
+        -home/*/.cache/mozilla/*;
+        -root/etc/*;
+        -root/usr/local/;
+        -root/opt/;
+        -home/*/.gvfs;
+        -home/*/.thumbnails;
+        -root/media/*;
+        -root/mnt/*;
+        -root/var/run/*;
+        -root/var/lock/*;
+        -root/var/log/*;
+        -root/lib/modules/*/volatile/.mounted;
+        -root/var/cache/apt/archives/*;
+        -root/var/cache;
+        -root/var/crash/*;
+        -root/var/spool/squid;
+        -root/var/tmp"
+      - EMAIL_TO=${DUPLICACY_EMAIL_TO}
+      - HEALTH_CHECK_URL=${DUPLICACY_HEALTH_CHECK_URL}
+      - $DUPLICACY_POST_BACKUP_SCRIPT
+      #- POST_BACKUP_SCRIPT=/usr/bin/ping_url.sh
+      - DUPLICACY_PASSWORD={{"{{DOCKER-SECRET:repo_password}}"}}
+      - DUPLICACY_WASABI_KEY={{"{{DOCKER-SECRET:storage_username}}"}}
+      - DUPLICACY_WASABI_SECRET={{"{{DOCKER-SECRET:storage_password}}"}}
+      # Backup hourly
+      - "BACKUP_CRON=${DUPLICACY_BACKUP_CRON:-0 1 * * *}"
+      # Prune nightly
+      - PRUNE_CRON=${DUPLICACY_PRUNE_CRON:-0 1 * * *}
+      - PRUNE_KEEP_POLICIES=${DUPLICACY_PRUNE_KEEP_POLICIES:-7:90;30:180;0:360}
+      #- PRUNE_OPTIONS=
+      - SNAPSHOT_ID=${HOST_HOSTNAME}
+      - EMAIL_HOSTNAME_ALIAS=${HOST_HOSTNAME}
+      - EMAIL_FROM=${TECHNOCORE_SMTP_ADDRESS:-technocore@$DOMAIN}
+      - "EMAIL_FROM_NAME=Duplicacy: $HOST_HOSTNAME"
+      - EMAIL_SMTP_SERVER=smtp_relay
+      - EMAIL_SMTP_SERVER_PORT=587
+    image: ${image_provider:-scififarms}/technocore-duplicacy-cli:${TAG:-latest}
     logging:
       driver: "${LOGGING_DRIVER}"
       options:
         tag: "{{.Name}}"
     networks:
-      - example_service
-      - example_service-private
-    #secrets:
-    #  - source: example_service_admin_password
-    #    target: admin_password
-    #  - source: example_service_example_service_db_password
-    #    target: example_service_db_password
-    volumes:
-      # Likely need to change this
-      - example_service:/var/lib/example_service
-      # This should in fact be all upper case.
-      - ${DEV_MOUNT_EXAMPLE_SERVICE_MIGRATIONS:-$EMPTY_MOUNT}
-
-  example_service_db:
-    deploy:
-      labels:
-        - com.ouroboros.enable=true
-      mode: global
-      restart_policy:
-        condition: any
-    environment:
-      - POSTGRES_USER=example_service
-      - POSTGRES_PASSWORD={{"{{DOCKER-SECRET:example_service_password}}"}}
-      - POSTGRES_DB=example_service
-    image: ${image_provider:-scififarms}/technocore-example_service-db:${TAG:-latest}
-    logging:
-      driver: "${LOGGING_DRIVER}"
-      options:
-        tag: "{{.Name}}"
-    networks:
-      - example_service-private
+      - duplicacy_cli
     secrets:
-      - source: example_service_db_admin_password
-        target: admin_password
-      - source: example_service_db_example_service_password
-        target: example_service_password
+      - source: duplicacy_cli_repo_password
+        target: repo_password
+      - source: duplicacy_cli_storage_username
+        target: storage_username
+      - source: duplicacy_cli_storage_password
+        target: storage_password
+
+    # IF YOU UPDATE THESE, ALSO UPDATE duplicacy-gui!
     volumes:
-      # Likely need to change this
-      - example_service-db:/var/lib/postgresql/data
+      - ${TECHNOCORE_DATA}/:/data/technocore_data:ro
+      - /:/data/root:ro

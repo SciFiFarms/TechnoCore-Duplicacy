@@ -2,29 +2,29 @@ version: "3.5"
 # WARNING: When you use this file, you need to enable generate_password_for influxdb in the secrets.sh file. 
 
 networks:
-  influxdb-example_service:
+  influxdb-duplicacy_cli:
 
 secrets:
-  influxdb_example_service_password:
-    name: ${STACK_NAME:-technocore}_influxdb_example_service_password
+  influxdb_duplicacy_cli_password:
+    name: ${STACK_NAME:-technocore}_influxdb_duplicacy_cli_password
     external: true
-  example_service_influxdb_password:
-    name: ${STACK_NAME:-technocore}_example_service_influxdb_password
+  duplicacy_cli_influxdb_password:
+    name: ${STACK_NAME:-technocore}_duplicacy_cli_influxdb_password
     external: true
 
 services:
   influxdb:
     networks:
-      - influxdb-example_service
+      - influxdb-duplicacy_cli
     secrets:
-      - source: influxdb_example_service_password
-        target: users/example_service
+      - source: influxdb_duplicacy_cli_password
+        target: users/duplicacy_cli
 
-  example_service:
+  duplicacy_cli:
     networks:
-      - influxdb-example_service
+      - influxdb-duplicacy_cli
     secrets:
-      - source: example_service_influxdb_password
+      - source: duplicacy_cli_influxdb_password
         target: influxdb_password
 
 
