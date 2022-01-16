@@ -60,37 +60,47 @@ services:
       - JOB_RANDOM_DELAY=${DUPLICACY_JOB_RANDOM_DELAY:-2700}
       #- RUN_JOB_IMMEDIATELY=yes
       - STORAGE_URL=${DUPLICACY_STORAGE_URL:-PLEASE_ENTER_A_DUPLICACY_STORAGE_URL}
-      - "FILTER_PATTERNS=-*/.snapshots/;
-        -root/var/lib/docker/;
-        -root/proc/*;
-        -root/dev/*;
-        -root/run/*;
-        -root/sys/*;
-        -root/tmp/*;
-        -root/home/;
-        -root/Temp/;
-        -root/Videos/;
-        -etc/systemd/system.control/;
-        -home/*/.config/libreoffice/*/user/uno_packages/cache;
-        -home/*/.cache/chromium;
-        -home/*/.local/share/Trash/*;
-        -home/*/.cache/mozilla/*;
-        -root/etc/*;
-        -root/usr/local/;
-        -root/opt/;
-        -home/*/.gvfs;
-        -home/*/.thumbnails;
-        -root/media/*;
-        -root/mnt/*;
+      - "FILTER_PATTERNS=
+        -*/.snapshots/;
+        -*.sock;
+        -*.pipe;
+        +root/${TECHNOCORE_DATA}/*;
+        -root/home/*/.config/libreoffice/*/user/uno_packages/cache/*;
+        -root/home/*/.config/deluge/ipc/deluge-gtk;
+        -root/home/*/.cache/*;
+        -root/home/*/.var/app/*/cache/*;
+        -root/home/*/.cache/mozilla/*;
+        -root/home/*/.cache/chromium/*;
+        -root/home/*/.cache/BraveSoftware/*;
+        -root/home/*/.local/share/Trash/*;
+        -root/home/*/.gvfs/*;
+        -root/home/*/.thumbnails/*;
+        +root/home/*;
+        -root/var/lib/docker/*;
+        -root/var/lib/flatpak/*;
+        -root/var/lib/nfs/rpc_pipefs/gssd/clntXX/gssd;
         -root/var/run/*;
         -root/var/lock/*;
         -root/var/log/*;
-        -root/lib/modules/*/volatile/.mounted;
         -root/var/cache/apt/archives/*;
-        -root/var/cache;
+        -root/var/cache/*;
         -root/var/crash/*;
-        -root/var/spool/squid;
-        -root/var/tmp"
+        -root/var/spool/squid/*;
+        -root/var/tmp/*;
+        +root/var/*;
+        -root/etc/systemd/system.control/*;
+        +root/etc/*;
+        -root/usr/share/hassio/media/*;
+        -root/usr/share/hassio/share/downloads/*;
+        +root/usr/share/*;
+        +root/usr/local/*;
+        +root/usr/;
+        -root/usr/*;
+        +root/opt/*;
+        -root/root/.cache/*;
+        +root/root/*;
+        +root/;
+        -root/*;"
       - EMAIL_TO=${DUPLICACY_EMAIL_TO}
       - HEALTH_CHECK_URL=${DUPLICACY_HEALTH_CHECK_URL}
       - $DUPLICACY_POST_BACKUP_SCRIPT
