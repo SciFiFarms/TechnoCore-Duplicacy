@@ -29,6 +29,8 @@ env_secret_expand() {
         else
             env_secret_debug "Secret file does not exist! $secret"
         fi
+    else
+        export "$var"="$(echo "$val" | tr -d "\"")"
     fi
 }
 
@@ -44,8 +46,9 @@ env_secrets_expand() {
     fi
 }
 env_secrets_expand
-dogfish migrate &
-
-# Add any additional script here. 
+export FILTER_PATTERNS=${EXTRA_FILTER_PATTERNS}${DEFAULT_FILTER_PATTERNS}
+# Need to replace _ with spaces to work around dumb escaping issues.
+export "BACKUP_CRON=${BACKUP_CRON//_/" "}"
+export "PRUNE_CRON=${PRUNE_CRON//_/" "}"
 
 exec "$@"

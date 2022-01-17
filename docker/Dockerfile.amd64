@@ -18,6 +18,46 @@ RUN apk add --no-cache curl
 
 #
 ### Set up the CMD as well as the pre and post hooks.
+ENV DEFAULT_FILTER_PATTERNS=" \
+        -*/.snapshots/;\
+        -*.sock;\
+        -*.pipe;\
+        -root/home/*/.config/libreoffice/*/user/uno_packages/cache/*;\
+        -root/home/*/.config/deluge/ipc/deluge-gtk;\
+        -root/home/*/.cache/*;\
+        -root/home/*/.var/app/*/cache/*;\
+        -root/home/*/.cache/mozilla/*;\
+        -root/home/*/.cache/chromium/*;\
+        -root/home/*/.cache/BraveSoftware/*;\
+        -root/home/*/.local/share/Trash/*;\
+        -root/home/*/.gvfs/*;\
+        -root/home/*/.thumbnails/*;\
+        +root/home/*;\
+        -root/var/lib/docker/*;\
+        -root/var/lib/flatpak/*;\
+        -root/var/lib/nfs/rpc_pipefs/gssd/clntXX/gssd;\
+        -root/var/run/*;\
+        -root/var/lock/*;\
+        -root/var/log/*;\
+        -root/var/cache/apt/archives/*;\
+        -root/var/cache/*;\
+        -root/var/crash/*;\
+        -root/var/spool/squid/*;\
+        -root/var/tmp/*;\
+        +root/var/*;\
+        -root/etc/systemd/system.control/*;\
+        +root/etc/*;\
+        -root/usr/share/hassio/media/*;\
+        -root/usr/share/hassio/share/downloads/*;\
+        +root/usr/share/*;\
+        +root/usr/local/*;\
+        +root/usr/;\
+        -root/usr/*;\
+        +root/opt/*;\
+        -root/root/.cache/*;\
+        +root/root/*;\
+        +root/;\
+        -root/*;"
 COPY go-init /bin/go-init
 COPY entrypoint.sh /usr/bin/entrypoint.sh
 COPY exitpoint.sh /usr/bin/exitpoint.sh
