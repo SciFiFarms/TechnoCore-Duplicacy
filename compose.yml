@@ -3,9 +3,6 @@ version: "3.5"
 networks:
   duplicacy_cli:
 
-volumes:
-  duplicacy_cli:
-
 secrets:
   duplicacy_cli_repo_password:
     name: ${STACK_NAME:-technocore}_duplicacy_cli_repo_password

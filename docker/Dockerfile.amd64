@@ -44,6 +44,7 @@ ENV DEFAULT_FILTER_PATTERNS=" \
         -root/var/crash/*;\
         -root/var/spool/squid/*;\
         -root/var/tmp/*;\
+        -root/var/lib/dpkg/*;\
         +root/var/*;\
         -root/etc/systemd/system.control/*;\
         +root/etc/*;\
